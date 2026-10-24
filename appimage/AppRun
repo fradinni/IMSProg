@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# AppRun for the IMSProg AppImage.
+#
+# The AppImage ships the whole IMSProg suite:
+#   * IMSProg                 - the CH341A/CH347T/FT232H chip programmer
+#   * IMSProg_editor          - the chip database editor
+#   * IMSProg_database_update - the chip database updater
+#
+# Pick one with --editor / --updater, the programmer starts by default.
+#
+set -u
+
+HERE=$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")
+export APPDIR="$HERE"
+
+# Make the bundled Qt, plugins and data visible to the applications.
+export PATH="$HERE/usr/bin:$PATH"
+export LD_LIBRARY_PATH="$HERE/usr/lib:$HERE/usr/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export QT_PLUGIN_PATH="$HERE/usr/plugins"
+export QT_QPA_PLATFORM_PLUGIN_PATH="$HERE/usr/plugins/platforms"
+export XDG_DATA_DIRS="$HERE/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
+
+VERSION="@VERSION@"
+PROG=$(basename "${APPIMAGE:-$0}")
+
+usage() {
+    cat <<EOF
+IMSProg ${VERSION} - I2C/SPI/MicroWire EEPROM & flash programmer
+
+Usage:
+  ${PROG} [options] [arguments]
+
+Applications:
+  (no option)              start IMSProg, the chip programmer
+  --editor, editor         start IMSProg_editor, the chip database editor
+  --updater, updater       start IMSProg_database_update, the chip database updater
+
+Options:
+  --install-udev-rules     install the CH341/CH347/FT232H udev rules (needs root)
+  --version                print the IMSProg version
+  --help, -h               show this help
+
+Notes:
+  The udev rules grant access to the USB programmers without running IMSProg as
+  root. Alternatively install them manually:
+    sudo cp 71-CH341.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules
+EOF
+}
+
+install_udev_rules() {
+    RULES="$HERE/usr/share/imsprog/udev/71-CH341.rules"
+    DEST="/etc/udev/rules.d/71-CH341.rules"
+
+    if [ ! -f "$RULES" ]; then
+        echo "error: $RULES is missing from the AppImage" >&2
+        exit 1
+    fi
+
+    if [ "$(id -u)" -eq 0 ]; then
+        SUDO=""
+    elif command -v sudo >/dev/null 2>&1; then
+        SUDO="sudo"
+    else
+        echo "error: root privileges are required to install the udev rules" >&2
+        exit 1
+    fi
+
+    echo "Installing udev rules to $DEST"
+    $SUDO install -Dm644 "$RULES" "$DEST"
+
+    if command -v udevadm >/dev/null 2>&1; then
+        $SUDO udevadm control --reload-rules || true
+        $SUDO udevadm trigger --subsystem-match=usb || true
+    fi
+    echo "Done. Re-plug the programmer for the rules to take effect."
+}
+
+case "${1:-}" in
+    --help|-h|help)
+        usage
+        exit 0
+        ;;
+    --version|-v)
+        echo "IMSProg ${VERSION}"
+        exit 0
+        ;;
+    --install-udev-rules)
+        install_udev_rules
+        exit $?
+        ;;
+    --editor|editor)
+        shift
+        exec "$HERE/usr/bin/IMSProg_editor" "$@"
+        ;;
+    --updater|--database-update|updater|update-database)
+        shift
+        exec "$HERE/usr/bin/IMSProg_database_update" "$@"
+        ;;
+esac
+
+exec "$HERE/usr/bin/IMSProg" "$@"

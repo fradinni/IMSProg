@@ -1,0 +1,10 @@
+# Build artifacts that never belong in the container build context.
+.git
+.github
+.circleci
+dist
+build
+*.AppImage
+*.deb
+*.rpm
+*.dmg

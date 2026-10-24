@@ -46,6 +46,18 @@ git clone https://github.com/bigbigmdm/IMSProg.git && cd IMSProg
 sudo ./build_all.sh
 ```
 
+## Portable AppImage (Linux)
+
+A self-contained AppImage of the whole suite (programmer, editor and database
+updater) can be built with Docker or Podman - no build dependencies are needed
+on the host:
+```
+./build_appimage.sh
+```
+The artifacts are written to `./dist` together with a launcher script and a
+desktop integration script. See [appimage/README.md](appimage/README.md) for
+details.
+
 ## System software requirements
 
 ### Linux

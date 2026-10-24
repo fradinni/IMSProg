@@ -201,3 +201,8 @@ build/
 # The targets themselves
 IMSProg_editor/IMSProg_editor
 IMSProg_programmer/IMSProg
+
+# AppImage build artifacts
+dist/
+*.AppImage
+*.AppImage.sha256

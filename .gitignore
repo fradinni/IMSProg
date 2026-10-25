@@ -206,3 +206,7 @@ IMSProg_programmer/IMSProg
 dist/
 *.AppImage
 *.AppImage.sha256
+
+# Python bytecode (agent helper scripts)
+__pycache__/
+*.pyc

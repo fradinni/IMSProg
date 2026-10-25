@@ -1,3 +1,18 @@
+> **Info — additions to the original app**
+>
+> This repository is a fork of
+> [bigbigmdm/IMSProg](https://github.com/bigbigmdm/IMSProg). In addition to the
+> original application it provides:
+>
+> - **Portable AppImage (Linux)** — a Docker/Podman-based build that packages
+>   the programmer, database editor and database updater together with Qt5,
+>   libusb and libftdi, plus a launcher and desktop/udev integration helpers.
+>   See [Portable AppImage (Linux)](#portable-appimage-linux).
+> - **XMC XM25RU256C chip support** — added the 1.8 V, 32 MiB XMC XM25RU256C
+>   (JEDEC ID `0x20 0x44 0x19`) to the chip database.
+>
+> Everything else is unchanged from the original project.
+
 ## IMSProg
 
 <img align="right" src="img/mini_logo_IMSProg.svg">
